@@ -1,14 +1,39 @@
 package noobchain;
 import java.util.ArrayList;
+import java.util.Base64;
+import java.security.Security;
 import com.google.gson.GsonBuilder;
 
 public class Main
 {
     public static ArrayList<Blockchain> blockchain = new ArrayList<Blockchain>();
     public static int difficulty = 5;
+    public static Wallet walletA;
+    public static Wallet walletB;
 
     public static void main(String[] args)
     {
+        // Using Bouncy Castle as a security provider.
+        Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+
+        // Creating the new wallets
+        walletA = new Wallet();
+        walletB = new Wallet();
+
+        // Testing public/private keys
+        System.out.println("Private and public keys: ");
+        System.out.println(StringUtil.getStringFromKey(walletA.privateKey));
+        System.out.println(StringUtil.getStringFromKey(walletA.publicKey));
+
+        // Creating a test transaction using the two wallets
+        Transaction transaction = new Transaction(walletA.publicKey, walletB.publicKey, 5, null);
+        transaction.generateSignature(walletA.privateKey);
+
+        // Verifying if the signature is working using the public key.
+        System.out.println("Is signature verified? ");
+        System.out.println(transaction.verifySignature());
+
+
         blockchain.add(new Blockchain("Hi i am the first block,", "0"));
         System.out.println("Trying to mine block 1...");
         blockchain.get(0).mineBlock(difficulty);
@@ -26,7 +51,6 @@ public class Main
         String blockchainJson = new GsonBuilder().setPrettyPrinting().create().toJson(blockchain);
         System.out.println("\nThe block chain: ");
         System.out.println(blockchainJson);
-
     }
 
     public static Boolean isChainValid()
