@@ -23,6 +23,7 @@ public class Transaction
         this.inputs = inputs;
 
     }
+
     // Calculates the transaction hash / ID
     private String calculateHash()
     {
@@ -34,4 +35,27 @@ public class Transaction
                                );
 
     }
+
+    //Signs any data we don't want tampered with.
+    public void generateSignature(PrivateKey privateKey)
+    {
+        String data = StringUtil.getStringFromKey(sender)
+                        + StringUtil.getStringFromKey(recipient)
+                        + Float.toString(value);
+
+        signature = StringUtil.applyECDSASig(privateKey, data);
+
+    }
+
+    //Verifies that the data we signed hasn't been tampered with.
+    public boolean verifySignature()
+    {
+        String data = StringUtil.getStringFromKey(sender)
+                        + StringUtil.getStringFromKey(recipient)
+                        + Float.toString(value);
+
+        return StringUtil.verifyECDSASig(sender, data, signature);
+
+    }
+
 }
